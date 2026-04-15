@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # Collaborative Coding Platform Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: coding_platform_app
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - piston_api
+    networks:
+      - coding_network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5000', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Piston API for Code Execution
+  piston_api:
+    image: ghcr.io/engineer-man/piston
+    container_name: piston_api
+    restart: always
+    privileged: true
+    ports:
+      - "2000:2000"
+    volumes:
+      - ./data/piston/packages:/piston/packages
+    tmpfs:
+      - /tmp:exec
+    networks:
+      - coding_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  coding_network:
+    driver: bridge
+
+volumes:
+  piston_data:
+    driver: local

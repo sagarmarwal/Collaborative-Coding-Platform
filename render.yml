@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: collaborative-coding-platform
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "5000"
+      - key: PISTON_API_URL
+        fromService:
+          type: web
+          name: piston-api
+          property: url
+      - key: PISTON_API_PORT
+        value: "2000"
+    healthCheckPath: /
+    
+  - type: web
+    name: piston-api
+    env: image
+    plan: free
+    image: ghcr.io/engineer-man/piston:latest
+    autoDeploy: false
+    envVars:
+      - key: PORT
+        value: "2000"
+    healthCheckPath: /api/v1/health
+    
+  - type: redis
+    name: coding-platform-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: Allow connections from app service
