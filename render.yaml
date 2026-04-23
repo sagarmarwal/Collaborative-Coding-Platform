@@ -23,7 +23,8 @@ services:
     name: piston-api
     env: image
     plan: free
-    image: ghcr.io/engineer-man/piston:latest
+    image:
+      url: ghcr.io/engineer-man/piston:latest
     autoDeploy: false
     envVars:
       - key: PORT
