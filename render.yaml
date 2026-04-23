@@ -3,8 +3,8 @@ services:
     name: collaborative-coding-platform
     env: docker
     plan: free
-    dockerfilePath: ./Dockerfile
     autoDeploy: true
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: NODE_ENV
         value: production
@@ -22,16 +22,19 @@ services:
   - type: web
     name: piston-api
     env: image
-    plan: starter # Disks require a paid plan
+    plan: free # No billing required
     image:
-        url: ghcr.io/engineer-man/piston:latest
-    disk:
-      name: piston-data
-      mountPath: /tmp/piston # Adjust this path to wherever Piston needs write access
-      sizeGB: 10
+      url: ghcr.io/engineer-man/piston:latest
+    autoDeploy: false
     envVars:
       - key: PORT
         value: "2000"
+      # This tells Piston to use the writable /tmp directory
+      - key: PISTON_DATA_PATH
+        value: /tmp/piston
+      - key: PISTON_RUN_PATH
+        value: /tmp/piston/run
+    healthCheckPath: /api/v1/health
     
   - type: redis
     name: coding-platform-redis
