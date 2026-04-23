@@ -24,16 +24,12 @@ services:
     image:
       url: ghcr.io/engineer-man/piston:latest
     autoDeploy: false
-    # This command creates a writable area in /tmp and links Piston's 
-    # required folders to it before the app starts.
-    startCommand: |
-      mkdir -p /tmp/piston/isolate /tmp/piston/jobs && \
-      ln -s /tmp/piston/isolate /piston/isolate && \
-      ln -s /tmp/piston/jobs /piston/jobs && \
-      ./piston start
     envVars:
       - key: PORT
         value: "2000"
+      # This is the magic key that moves the 'isolate' and 'jobs' folders to a writable area
+      - key: PISTON_DATA_DIRECTORY
+        value: /tmp/piston
     healthCheckPath: /api/v1/health
     
   - type: redis
